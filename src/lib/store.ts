@@ -109,6 +109,13 @@ export function saveData(data: AppData) {
   if (typeof window === "undefined") return;
   localStorage.setItem(DATA_KEY, JSON.stringify(data));
   window.dispatchEvent(new Event("hrms-data-updated"));
+  // Cloud sync when Supabase is configured (fire-and-forget)
+  void import("./supabase/config").then(({ isSupabaseConfigured }) => {
+    if (!isSupabaseConfigured()) return;
+    void import("./supabase/sync").then(({ pushAppDataToSupabase }) => {
+      void pushAppDataToSupabase(data);
+    });
+  });
 }
 
 export function resetData() {

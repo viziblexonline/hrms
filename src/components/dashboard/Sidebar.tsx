@@ -143,8 +143,8 @@ export function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
       <div className="space-y-2 border-t border-primary/10 p-3">
         <LanguageSwitcher variant="compact" className="w-full [&>button]:w-full [&>button]:justify-center" />
         <button
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             router.push("/login");
           }}
           className="flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium text-ink-soft hover:bg-rose-50 hover:text-rose-700"

@@ -1,35 +1,32 @@
 # Hifz Revision Management System (HRMS)
 
-A role-based web application for managing Quran memorization (Hifz) progress, revision schedules, teacher assessments, and reports.
+Role-based app for Quran Hifz progress, revision, assessments, meetings, and listening.
+
+**GitHub:** https://github.com/viziblexonline/hrms
 
 ## Features
 
-- Secure login with role-based access (Student / Teacher / Administrator)
-- Student progress tracking (Surah / Ayah ranges)
-- Revision task scheduling and completion
-- Teacher assessments with scores, mistakes, and feedback
-- Admin user management and teacher–student assignment
-- Dashboards, search/filter reports, and contact form
-- UI inspired by the provided green Islamic-themed mockups
+- Student / Teacher / Admin dashboards
+- Class linking, revision tasks (create + edit), assessments
+- Conflict-aware online meetings + Quran listening studio
+- Golden Gesture + role connection hub
+- **Supabase** database + **real auth** (email + **Continue with Google**)
+- Local demo mode if Supabase env is missing
 
 ## Tech Stack
 
-- Next.js 14 (App Router)
-- TypeScript
-- Tailwind CSS
-- Lucide Icons
-- Browser localStorage data layer (demo-ready, no DB setup required)
+- Next.js 14 (App Router) + TypeScript + Tailwind
+- Supabase (Auth + Postgres)
+- Framer Motion, Lucide
 
-## Getting Started
+## Quick start (local demo)
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-## Demo Accounts
+Demo accounts (localStorage mode only):
 
 | Role    | Email                 | Password    |
 |---------|-----------------------|-------------|
@@ -37,24 +34,23 @@ Open [http://localhost:3000](http://localhost:3000).
 | Teacher | ahmed@hrms.edu.pk     | teacher123  |
 | Admin   | admin@hrms.edu.pk     | admin123    |
 
-## Functional Coverage
+## Supabase + Google Sign-In
 
-- FR-01 Login & role-based access
-- FR-02 Admin user create / update / deactivate / view
-- FR-03 Assign teachers to students & manage classes
-- FR-04 Teachers view students & record memorized ranges
-- FR-05 Teachers create revision tasks with due dates
-- FR-06 Students view/mark revision tasks
-- FR-07 Teachers record assessments, mistakes, scores, feedback
-- FR-08 Full revision & assessment history
-- FR-09 Progress summaries from stored records
-- FR-10 Search, filtering, dashboards, and reports
+Full steps: **[SETUP-SUPABASE.md](SETUP-SUPABASE.md)**
 
-## Project Structure
+1. Create Supabase project → copy URL + anon key into `.env.local`
+2. Run `supabase/schema.sql` in SQL Editor
+3. Google Cloud OAuth Client ID/Secret → Supabase Auth → Google provider
+4. Redirect URI: `https://YOUR_REF.supabase.co/auth/v1/callback`
+5. Login page → **Continue with Google**
 
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=xxxx.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=GOCSPX-...
 ```
-src/
-  app/                 # Pages (public + dashboard)
-  components/          # UI components
-  lib/                 # Types, seed data, auth, store
-```
+
+## Deploy (Vercel)
+
+Import this GitHub repo on Vercel, add the same env vars, then add your Vercel URL to Google + Supabase redirect allow-lists.

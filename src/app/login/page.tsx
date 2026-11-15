@@ -2,31 +2,40 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Lock, Mail } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { FormField } from "@/components/FormField";
 import { MosqueSilhouette } from "@/components/MosqueArt";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { MotionButton, motion } from "@/components/motion";
+import { Suspense } from "react";
 
-export default function LoginPage() {
-  const { login } = useAuth();
+function LoginForm() {
+  const { login, supabaseEnabled } = useAuth();
   const { t } = useI18n();
   const router = useRouter();
-  const [email, setEmail] = useState("zakria@hrms.edu.pk");
-  const [password, setPassword] = useState("student123");
+  const search = useSearchParams();
+  const [email, setEmail] = useState(supabaseEnabled ? "" : "zakria@hrms.edu.pk");
+  const [password, setPassword] = useState(supabaseEnabled ? "" : "student123");
   const [remember, setRemember] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    search.get("error") === "auth_callback_failed"
+      ? "Google sign-in failed. Check Supabase Google provider settings."
+      : search.get("error") === "supabase_not_configured"
+        ? "Supabase is not configured yet."
+        : ""
+  );
   const [loading, setLoading] = useState(false);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    const result = login(email, password);
+    const result = await login(email, password);
     setLoading(false);
     if (!result.ok) {
       setError(result.error || "Login failed");
@@ -80,7 +89,17 @@ export default function LoginPage() {
           </h1>
           <p className="mt-1 text-sm text-ink-mute">{t.auth.loginHint}</p>
 
-          <form onSubmit={onSubmit} className="mt-7 space-y-4">
+          <div className="mt-6">
+            <GoogleSignInButton />
+          </div>
+
+          <div className="my-5 flex items-center gap-3 text-xs text-ink-mute">
+            <div className="h-px flex-1 bg-primary/10" />
+            or email
+            <div className="h-px flex-1 bg-primary/10" />
+          </div>
+
+          <form onSubmit={onSubmit} className="space-y-4">
             <FormField
               label={t.auth.email}
               type="email"
@@ -140,14 +159,24 @@ export default function LoginPage() {
             </Link>
           </p>
 
-          <div className="mt-6 rounded-2xl border border-primary/10 bg-primary-mist/80 p-3 text-xs text-ink-soft">
-            <p className="font-semibold text-primary">Demo</p>
-            <p>Student: zakria@hrms.edu.pk / student123</p>
-            <p>Teacher: ahmed@hrms.edu.pk / teacher123</p>
-            <p>Admin: admin@hrms.edu.pk / admin123</p>
-          </div>
+          {!supabaseEnabled && (
+            <div className="mt-6 rounded-2xl border border-primary/10 bg-primary-mist/80 p-3 text-xs text-ink-soft">
+              <p className="font-semibold text-primary">Local demo accounts</p>
+              <p>Student: zakria@hrms.edu.pk / student123</p>
+              <p>Teacher: ahmed@hrms.edu.pk / teacher123</p>
+              <p>Admin: admin@hrms.edu.pk / admin123</p>
+            </div>
+          )}
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="grid min-h-screen place-items-center text-ink-mute">Loading…</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }

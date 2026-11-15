@@ -94,8 +94,8 @@ export default function SettingsPage() {
             </button>
             <button
               className="btn-primary bg-rose-700 hover:bg-rose-800"
-              onClick={() => {
-                logout();
+              onClick={async () => {
+                await logout();
                 window.location.href = "/login";
               }}
             >

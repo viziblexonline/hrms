@@ -8,7 +8,8 @@ import { Logo } from "@/components/Logo";
 import { FormField } from "@/components/FormField";
 import { QuranHeroImage } from "@/components/MosqueArt";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { registerUser } from "@/lib/store";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
+import { useAuth } from "@/lib/auth-context";
 import { Role } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import {
@@ -23,6 +24,7 @@ import { MotionButton, motion } from "@/components/motion";
 export default function SignupPage() {
   const router = useRouter();
   const { t } = useI18n();
+  const { signup } = useAuth();
   const [role, setRole] = useState<Exclude<Role, "admin">>("student");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -39,7 +41,7 @@ export default function SignupPage() {
   const checks = useMemo(() => getPasswordChecks(password), [password]);
   const strength = useMemo(() => getPasswordStrength(password), [password]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -54,10 +56,10 @@ export default function SignupPage() {
     }
 
     setLoading(true);
-    const result = registerUser({ name, email, password, role });
+    const result = await signup({ name, email, password, role });
     setLoading(false);
     if (!result.ok) {
-      setError(result.error);
+      setError(result.error || "Signup failed");
       return;
     }
     router.push("/dashboard");
@@ -101,10 +103,20 @@ export default function SignupPage() {
             {t.auth.signupTitle}
           </h1>
           <p className="mt-1 text-sm text-ink-mute">
-            Sign up as Student or Teacher. Admin access is institute-managed.
+            Sign up as Student or Teacher. Admin is institute-managed.
           </p>
 
-          <div className="mt-6 grid grid-cols-2 gap-2 rounded-full bg-primary-mist p-1.5">
+          <div className="mt-5">
+            <GoogleSignInButton label="Continue with Google" />
+          </div>
+
+          <div className="my-5 flex items-center gap-3 text-xs text-ink-mute">
+            <div className="h-px flex-1 bg-primary/10" />
+            or email
+            <div className="h-px flex-1 bg-primary/10" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 rounded-full bg-primary-mist p-1.5">
             {roles.map((r) => (
               <motion.button
                 key={r.id}
