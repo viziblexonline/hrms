@@ -26,15 +26,22 @@ Google OAuth **Client ID + Secret** Supabase Auth provider mein lagte hain (Rail
 4. Authorized JavaScript origins:
    - `http://localhost:3000`
    - `http://localhost:3001`
-   - your Vercel URL (baad mein)
+   - `https://hrms-two-kappa.vercel.app`
 5. Authorized redirect URIs (IMPORTANT):
-   - `https://YOUR_PROJECT_REF.supabase.co/auth/v1/callback`
+   - `https://sagozbatwxdpdrzbglej.supabase.co/auth/v1/callback`
 6. Copy **Client ID** + **Client Secret**
 7. Supabase → **Authentication → Providers → Google** → Enable  
    - paste Client ID + Secret → Save
-8. Supabase → **Authentication → URL Configuration**
-   - Site URL: `http://localhost:3001` (dev) / your production URL
-   - Redirect URLs: `http://localhost:3001/auth/callback` and production `/auth/callback`
+8. Supabase → **Authentication → URL Configuration** (**phone Google login ke liye zaroori**)
+   - Site URL: `https://hrms-two-kappa.vercel.app`
+   - Redirect URLs:
+     - `https://hrms-two-kappa.vercel.app/auth/callback`
+     - `http://localhost:3000/auth/callback`
+     - `http://localhost:3001/auth/callback`
+
+**Phone pe “This site can’t be reached”:** aksar Google ke baad `localhost` pe bhej deta hai.  
+Phone se hamesha ye kholo (localhost nahi): https://hrms-two-kappa.vercel.app/login  
+Aur upar wali Site URL + Redirect URLs Save karo.
 
 `.env.local` mein bhi Client ID rakh sakte ho (documentation):
 
@@ -63,8 +70,26 @@ Open Login → **Continue with Google** ya email/password signup.
 3. Deploy
 4. Google + Supabase redirect URLs mein Vercel domain add karo
 
+## Auth emails from HRMS (zakria.haq123@gmail.com)
+
+See **[SETUP-EMAIL.md](SETUP-EMAIL.md)** — Custom SMTP + HRMS email templates.
+
+## Fix “Email not confirmed” on login
+
+**Option A (recommended):** Authentication → Providers → **Email** → **Confirm email** = **OFF** → Save  
+Phir Authentication → Users → teacher user → Confirm / ya dubara signup.
+
+**Option B (app auto-confirm):** Project Settings → API → copy **`service_role`** secret →  
+`.env.local` + Vercel env:
+
+```
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+```
+
+Iske baad signup pe email auto-confirmed hoti hai, turant login chalega.
+
 ## Auth note
 
 - **Real auth** = Supabase Auth (email + Google)
-- “Railway authentication” is project mein zaroori nahi — Google Client ID Google Cloud + Supabase pe set hota hai
+- Google Client ID Google Cloud + Supabase pe set hota hai
 - Bina env ke app pehle jaisi **localStorage demo** mode mein chalti hai

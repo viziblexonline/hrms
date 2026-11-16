@@ -447,6 +447,42 @@ export function updateUser(id: string, patch: Partial<User>) {
   return data.users[idx];
 }
 
+/** Add/update a user in the shared directory (signup → admin Users list) */
+export function upsertDirectoryUser(input: {
+  id: string;
+  name: string;
+  email: string;
+  role: User["role"];
+  phone?: string;
+  className?: string;
+  classId?: string;
+  teacherId?: string;
+  password?: string;
+  active?: boolean;
+}): User {
+  const data = getData();
+  const email = input.email.trim().toLowerCase();
+  const idx = data.users.findIndex((u) => u.email.toLowerCase() === email);
+  const next: User = {
+    id: input.id,
+    name: input.name.trim(),
+    email,
+    password: input.password || (idx >= 0 ? data.users[idx].password : ""),
+    role: input.role,
+    phone: input.phone,
+    className: input.className,
+    classId: input.classId,
+    teacherId: input.teacherId,
+    active: input.active !== false,
+    createdAt:
+      idx >= 0 ? data.users[idx].createdAt : new Date().toISOString(),
+  };
+  if (idx >= 0) data.users[idx] = { ...data.users[idx], ...next };
+  else data.users.push(next);
+  saveData(data);
+  return next;
+}
+
 export function getClassStudentCount(data: AppData, classId: string) {
   return data.users.filter(
     (u) => u.role === "student" && u.classId === classId && u.active

@@ -62,6 +62,13 @@ export default function SignupPage() {
       setError(result.error || "Signup failed");
       return;
     }
+    // Confirmation email pending (HRMS-branded after SMTP setup)
+    if (result.error?.includes("confirmation email")) {
+      setError("");
+      window.alert(result.error);
+      router.push("/login");
+      return;
+    }
     router.push("/dashboard");
   };
 
@@ -107,7 +114,7 @@ export default function SignupPage() {
           </p>
 
           <div className="mt-5">
-            <GoogleSignInButton label="Continue with Google" />
+            <GoogleSignInButton />
           </div>
 
           <div className="my-5 flex items-center gap-3 text-xs text-ink-mute">

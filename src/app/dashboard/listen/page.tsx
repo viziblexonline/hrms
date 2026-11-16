@@ -8,7 +8,7 @@ export default function DashboardListenPage() {
   return (
     <div>
       <TopBar
-        title="Quran Listening"
+        title="Quran Listenng"
         subtitle="Listen to recorded Quran from famous Qaris for revision and muraja'ah"
       />
       <FadeUp>

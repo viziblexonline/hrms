@@ -42,8 +42,10 @@ begin
   if chosen_role not in ('student', 'teacher', 'admin') then
     chosen_role := 'student';
   end if;
-  -- Public signup must not create admin
-  if chosen_role = 'admin' then
+  -- Bootstrap institute admin email keeps admin; other public signups cannot
+  if lower(new.email) = 'admin@hrms.edu.pk' then
+    chosen_role := 'admin';
+  elsif chosen_role = 'admin' then
     chosen_role := 'student';
   end if;
   chosen_name := coalesce(

@@ -19,10 +19,13 @@ import { isSupabaseConfigured } from "./supabase/config";
 import { tryCreateClient } from "./supabase/client";
 import {
   fetchAppDataFromSupabase,
+  fetchAllProfiles,
   fetchMyProfile,
+  mergeProfilesIntoUsers,
   pushAppDataToSupabase,
 } from "./supabase/sync";
-import { getData, saveData } from "./store";
+import { getData, saveData, upsertDirectoryUser } from "./store";
+import { APP_FULL_NAME, APP_NAME, APP_SUPPORT_EMAIL } from "./branding";
 
 interface AuthContextValue {
   user: SessionUser | null;
@@ -94,6 +97,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const sessionUser = profileToSession(profile);
       setSession(sessionUser);
       setUser(sessionUser);
+      upsertDirectoryUser({
+        id: profile.id,
+        name: profile.name,
+        email: profile.email,
+        role: profile.role,
+        phone: profile.phone || undefined,
+        className: profile.class_name || undefined,
+        classId: profile.class_id || undefined,
+        teacherId: profile.teacher_id || undefined,
+        active: profile.active !== false,
+      });
     } else {
       const fallback: SessionUser = {
         id: session.user.id,
@@ -108,14 +122,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
       setSession(fallback);
       setUser(fallback);
+      if (fallback.email) {
+        upsertDirectoryUser({
+          id: fallback.id,
+          name: fallback.name,
+          email: fallback.email,
+          role: fallback.role,
+        });
+      }
     }
 
-    // Pull shared AppData from Supabase once authenticated
+    // Pull shared AppData, then merge every Supabase profile (signups → admin list)
     const remote = await fetchAppDataFromSupabase();
     if (remote && Array.isArray(remote.users)) {
       saveData(remote);
-    } else {
-      // Seed cloud with local/demo data on first connect
+    }
+    const profiles = await fetchAllProfiles();
+    if (profiles.length > 0) {
+      const current = getData();
+      const mergedUsers = mergeProfilesIntoUsers(current.users, profiles);
+      saveData({ ...current, users: mergedUsers });
+    } else if (!remote || !Array.isArray(remote.users)) {
       await pushAppDataToSupabase(getData());
     }
   }, []);
@@ -182,9 +209,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             email,
             password,
           });
-          if (error) return { ok: false, error: error.message };
-          await hydrateFromSupabase();
-          return { ok: true };
+          if (!error) {
+            await hydrateFromSupabase();
+            await fetch("/api/auth/notify", {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                kind: "login",
+                email,
+                name: email.split("@")[0],
+              }),
+            }).catch(() => undefined);
+            return { ok: true };
+          }
+          // Demo seed accounts still work if not yet in Supabase Auth
+          const local = doLogin(email, password);
+          if (local) {
+            setUser(local);
+            return { ok: true };
+          }
+          return { ok: false, error: error.message };
         }
         const session = doLogin(email, password);
         if (!session) return { ok: false, error: "Invalid email or password." };
@@ -193,17 +238,81 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
       signup: async ({ email, password, name, role }) => {
         if (supabaseEnabled) {
+          // Server signup confirms email immediately (no "Email not confirmed" on login)
+          const serverRes = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, name, role }),
+          }).catch(() => null);
+
+          if (serverRes?.ok) {
+            const created = (await serverRes.json().catch(() => null)) as {
+              userId?: string;
+            } | null;
+            upsertDirectoryUser({
+              id: created?.userId || `u-${Date.now()}`,
+              name,
+              email,
+              role,
+              password,
+            });
+            const supabase = tryCreateClient();
+            if (!supabase) return { ok: false, error: "Supabase not configured." };
+            const { error: loginError } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+            if (loginError) {
+              return {
+                ok: true,
+                error: "Account created. Please sign in from the login page.",
+              };
+            }
+            await hydrateFromSupabase();
+            return { ok: true };
+          }
+
+          // Fallback: client signUp (needs Confirm email OFF, or user clicks confirm link)
           const supabase = tryCreateClient();
           if (!supabase) return { ok: false, error: "Supabase not configured." };
-          const { error } = await supabase.auth.signUp({
+          const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-              data: { name, role, full_name: name },
+              data: {
+                name,
+                role,
+                full_name: name,
+                app: APP_NAME,
+                app_full_name: APP_FULL_NAME,
+                support_email: APP_SUPPORT_EMAIL,
+              },
               emailRedirectTo: `${window.location.origin}/auth/callback`,
             },
           });
           if (error) return { ok: false, error: error.message };
+
+          upsertDirectoryUser({
+            id: data.user?.id || `u-${Date.now()}`,
+            name,
+            email,
+            role,
+            password,
+          });
+
+          await fetch("/api/auth/notify", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ kind: "signup", email, name }),
+          }).catch(() => undefined);
+
+          if (!data.session) {
+            return {
+              ok: true,
+              error: `Check inbox for the HRMS confirm link (from ${APP_SUPPORT_EMAIL}), then log in.`,
+            };
+          }
           await hydrateFromSupabase();
           return { ok: true };
         }
@@ -231,7 +340,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             redirectTo: `${window.location.origin}/auth/callback`,
             queryParams: {
               access_type: "offline",
-              prompt: "consent",
+              prompt: "select_account consent",
             },
           },
         });

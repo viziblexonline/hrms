@@ -32,7 +32,7 @@ Demo accounts (localStorage mode only):
 |---------|-----------------------|-------------|
 | Student | zakria@hrms.edu.pk    | student123  |
 | Teacher | ahmed@hrms.edu.pk     | teacher123  |
-| Admin   | admin@hrms.edu.pk     | admin123    |
+| Admin   | admin@hrms.edu.pk     | Admin@123   |
 
 ## Supabase + Google Sign-In
 

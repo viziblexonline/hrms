@@ -44,7 +44,7 @@ export const SEED_DATA: AppData = {
       id: "u-admin",
       name: "System Administrator",
       email: "admin@hrms.edu.pk",
-      password: "admin123",
+      password: "Admin@123",
       role: "admin",
       phone: "+92 300 1111111",
       active: true,

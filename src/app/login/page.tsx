@@ -38,7 +38,12 @@ function LoginForm() {
     const result = await login(email, password);
     setLoading(false);
     if (!result.ok) {
-      setError(result.error || "Login failed");
+      const msg = result.error || "Login failed";
+      setError(
+        /not confirmed|email.*confirm/i.test(msg)
+          ? "Email not confirmed yet. Open the HRMS confirm link in your inbox, or ask admin to turn Confirm email OFF in Supabase."
+          : msg
+      );
       return;
     }
     router.push("/dashboard");
@@ -164,7 +169,7 @@ function LoginForm() {
               <p className="font-semibold text-primary">Local demo accounts</p>
               <p>Student: zakria@hrms.edu.pk / student123</p>
               <p>Teacher: ahmed@hrms.edu.pk / teacher123</p>
-              <p>Admin: admin@hrms.edu.pk / admin123</p>
+              <p>Admin: admin@hrms.edu.pk / Admin@123</p>
             </div>
           )}
         </motion.div>

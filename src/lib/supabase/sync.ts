@@ -1,6 +1,6 @@
 "use client";
 
-import { AppData } from "@/lib/types";
+import { AppData, User } from "@/lib/types";
 import { tryCreateClient } from "./client";
 import { isSupabaseConfigured } from "./config";
 
@@ -81,4 +81,62 @@ export async function updateMyProfileRole(role: "student" | "teacher") {
 
   if (error) return { ok: false as const, error: error.message };
   return { ok: true as const };
+}
+
+/** All auth profiles — admin Users list ke liye */
+export async function fetchAllProfiles(): Promise<ProfileRow[]> {
+  const supabase = tryCreateClient();
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error || !data) return [];
+  return data as ProfileRow[];
+}
+
+export function profileToDirectoryUser(profile: ProfileRow): User {
+  return {
+    id: profile.id,
+    name: profile.name,
+    email: profile.email,
+    password: "",
+    role: profile.role,
+    phone: profile.phone || undefined,
+    avatar: profile.avatar || undefined,
+    teacherId: profile.teacher_id || undefined,
+    classId: profile.class_id || undefined,
+    className: profile.class_name || undefined,
+    active: profile.active !== false,
+    createdAt: new Date().toISOString(),
+  };
+}
+
+/** Merge Supabase profiles into AppData.users (signup users admin ko dikhein) */
+export function mergeProfilesIntoUsers(
+  existing: User[],
+  profiles: ProfileRow[]
+): User[] {
+  const byEmail = new Map<string, User>();
+  for (const u of existing) {
+    byEmail.set(u.email.toLowerCase(), u);
+  }
+  for (const p of profiles) {
+    const email = p.email.toLowerCase();
+    const prev = byEmail.get(email);
+    const fromProfile = profileToDirectoryUser(p);
+    byEmail.set(email, {
+      ...fromProfile,
+      password: prev?.password || "",
+      // Keep class assignment fields if profile empty but local has them
+      teacherId: fromProfile.teacherId || prev?.teacherId,
+      classId: fromProfile.classId || prev?.classId,
+      className: fromProfile.className || prev?.className,
+      phone: fromProfile.phone || prev?.phone,
+      createdAt: prev?.createdAt || fromProfile.createdAt,
+    });
+  }
+  return Array.from(byEmail.values()).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
 }

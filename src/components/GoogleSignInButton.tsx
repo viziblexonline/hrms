@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useAuth } from "@/lib/auth-context";
+import { APP_SUPPORT_EMAIL } from "@/lib/branding";
 import { motion } from "framer-motion";
 
 export function GoogleSignInButton({
-  label = "Continue with Google",
+  label = "Continue with Google · HRMS",
 }: {
   label?: string;
 }) {
@@ -35,7 +36,11 @@ export function GoogleSignInButton({
         <GoogleIcon />
         {loading ? "Redirecting…" : label}
       </motion.button>
-      {!supabaseEnabled && (
+      {supabaseEnabled ? (
+        <p className="text-center text-[11px] text-ink-mute">
+          After Google sign-in, HRMS emails you from {APP_SUPPORT_EMAIL}.
+        </p>
+      ) : (
         <p className="text-center text-[11px] text-amber-700">
           Google login activates after Supabase + Google Client ID setup.
         </p>

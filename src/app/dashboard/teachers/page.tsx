@@ -54,9 +54,12 @@ export default function TeachersPage() {
         </div>
       )}
 
-      <div className="mb-4">
+      <div className="mb-4 flex flex-wrap gap-4">
+        <Link href="/dashboard/users" className="text-sm font-semibold text-primary">
+          Create teacher / student accounts →
+        </Link>
         <Link href="/dashboard/classes" className="text-sm font-semibold text-primary">
-          Open Classes → create / assign class teachers
+          Open Classes → assign class teachers
         </Link>
       </div>
 

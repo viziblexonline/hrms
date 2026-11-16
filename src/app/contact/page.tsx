@@ -14,6 +14,7 @@ import { Logo } from "@/components/Logo";
 import { MosqueSilhouette } from "@/components/MosqueArt";
 import { FormField, SelectField } from "@/components/FormField";
 import { addContactMessage } from "@/lib/store";
+import { APP_CONTACT_PHONES, APP_SUPPORT_EMAIL } from "@/lib/branding";
 import Link from "next/link";
 import { FadeUp, MotionButton, motion } from "@/components/motion";
 import { useI18n } from "@/lib/i18n";
@@ -71,12 +72,18 @@ export default function ContactPage() {
             <InfoRow
               icon={Mail}
               title="Email"
-              value="info@hrms.edu.pk"
+              value={APP_SUPPORT_EMAIL}
+              href={`mailto:${APP_SUPPORT_EMAIL}`}
             />
             <InfoRow
               icon={Phone}
               title="Call Us"
-              value="+92 300 1234567"
+              value={APP_CONTACT_PHONES.join("  ·  ")}
+              href={`tel:${APP_CONTACT_PHONES[0]}`}
+              lines={APP_CONTACT_PHONES.map((n) => ({
+                label: n,
+                href: `tel:${n}`,
+              }))}
             />
             <InfoRow
               icon={MapPin}
@@ -183,10 +190,14 @@ function InfoRow({
   icon: Icon,
   title,
   value,
+  href,
+  lines,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   value: string;
+  href?: string;
+  lines?: { label: string; href: string }[];
 }) {
   return (
     <div className="flex items-start gap-3">
@@ -195,7 +206,25 @@ function InfoRow({
       </div>
       <div>
         <div className="text-sm font-semibold text-slate-900">{title}</div>
-        <div className="text-sm text-slate-600">{value}</div>
+        {lines?.length ? (
+          <div className="mt-0.5 space-y-1">
+            {lines.map((line) => (
+              <a
+                key={line.href}
+                href={line.href}
+                className="block text-sm text-slate-600 hover:text-primary"
+              >
+                {line.label}
+              </a>
+            ))}
+          </div>
+        ) : href ? (
+          <a href={href} className="text-sm text-slate-600 hover:text-primary">
+            {value}
+          </a>
+        ) : (
+          <div className="text-sm text-slate-600">{value}</div>
+        )}
       </div>
     </div>
   );
