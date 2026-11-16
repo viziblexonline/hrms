@@ -130,6 +130,15 @@ const en = {
     send: "Send Message",
     success: "Message sent successfully. JazakAllahu Khairan!",
   },
+  hadith: {
+    title: "Hadith",
+    subtitle:
+      "Curated ahadeeth for teachers — intention, Quran, knowledge, and character.",
+    all: "All collections",
+    search: "Search topic, narrator…",
+    narrator: "Narrator",
+    empty: "No hadith matched your search.",
+  },
   listen: {
     title: "Quran Listening Studio",
     subtitle: "Choose a Qari and Surah — muraja'ah support for every learner.",
@@ -194,6 +203,7 @@ const en = {
       schedule: "Schedule",
       meetings: "Online Meetings",
       listen: "Quran Listening",
+      hadith: "Hadith",
       classes: "Classes",
       students: "Students",
       teachers: "Teachers",
@@ -349,6 +359,15 @@ const ur: Dictionary = {
     send: "پیغام بھیجیں",
     success: "پیغام کامیابی سے بھیج دیا گیا۔ جزاک اللہ خیراً!",
   },
+  hadith: {
+    title: "حدیث",
+    subtitle:
+      "اساتذہ کے لیے منتخب احادیث — نیت، قرآن، علم اور اخلاق۔",
+    all: "تمام مجموعے",
+    search: "موضوع، راوی تلاش کریں…",
+    narrator: "راوی",
+    empty: "آپ کی تلاش سے کوئی حدیث نہیں ملی۔",
+  },
   listen: {
     title: "قرآن سماعت اسٹوڈیو",
     subtitle: "قاری اور سورہ منتخب کریں — ہر سیکھنے والے کے لیے مراجعت۔",
@@ -413,6 +432,7 @@ const ur: Dictionary = {
       schedule: "شیڈول",
       meetings: "آن لائن میٹنگز",
       listen: "قرآن سماعت",
+      hadith: "حدیث",
       classes: "کلاسز",
       students: "طلبہ",
       teachers: "اساتذہ",
@@ -568,6 +588,15 @@ const ar: Dictionary = {
     send: "إرسال الرسالة",
     success: "تم إرسال الرسالة بنجاح. جزاكم الله خيرًا!",
   },
+  hadith: {
+    title: "الحديث",
+    subtitle:
+      "أحاديث مختارة للمعلمين — النية والقرآن والعلم والخلق.",
+    all: "كل المجموعات",
+    search: "ابحث عن موضوع أو راوٍ…",
+    narrator: "الراوي",
+    empty: "لا توجد أحاديث مطابقة لبحثك.",
+  },
   listen: {
     title: "استوديو استماع القرآن",
     subtitle: "اختر قارئًا وسورة — دعم مراجعة لكل متعلم.",
@@ -631,6 +660,7 @@ const ar: Dictionary = {
       schedule: "الجدول",
       meetings: "اجتماعات عبر الإنترنت",
       listen: "استماع القرآن",
+      hadith: "الحديث",
       classes: "الصفوف",
       students: "الطلاب",
       teachers: "المعلمون",
