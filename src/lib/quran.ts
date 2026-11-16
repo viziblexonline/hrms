@@ -96,7 +96,7 @@ export const QARIS: Qari[] = [
     id: "ajamy",
     name: "Ahmad Al-Ajmy",
     nameAr: "أحمد العجمي",
-    country: "Saudi Aria",
+    country: "Saudi Arabia",
     style: "Murattal",
     edition: "ar.ahmedajamy",
     cover: "/qaris/ajamy.jpg",
