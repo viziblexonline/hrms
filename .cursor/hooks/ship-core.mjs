@@ -74,18 +74,29 @@ export function ship(label = "Cursor") {
     return { ok: false, message: `push failed: ${err.slice(0, 240)}` };
   }
 
+  // Windows: shell:true so npx.cmd resolves; capture stderr from PowerShell noise
   const isWin = process.platform === "win32";
-  const vercelCmd = isWin ? "npx.cmd" : "npx";
-  const deploy = run(vercelCmd, ["vercel", "--prod", "--yes"], {
-    env: process.env,
-    timeout: 280000,
-  });
+  const deploy = run(
+    isWin ? "npx.cmd" : "npx",
+    ["vercel", "--prod", "--yes"],
+    {
+      env: process.env,
+      timeout: 280000,
+      shell: isWin,
+    }
+  );
 
-  if (deploy.status !== 0) {
-    const err = `${deploy.stderr || ""}${deploy.stdout || ""}`.trim();
+  const deployOut = `${deploy.stdout || ""}${deploy.stderr || ""}`.trim();
+  const deployOk =
+    deploy.status === 0 ||
+    /Production:\s+https:\/\/hrms/i.test(deployOut) ||
+    /Aliased\s+https:\/\/hrms/i.test(deployOut) ||
+    /"status"\s*:\s*"ok"/i.test(deployOut);
+
+  if (!deployOk) {
     return {
       ok: false,
-      message: `Pushed ${branchName}, but Vercel deploy failed: ${err.slice(0, 200)}`,
+      message: `Pushed ${branchName}, but Vercel deploy failed: ${deployOut.slice(0, 280) || `exit ${deploy.status}`}`,
     };
   }
 
