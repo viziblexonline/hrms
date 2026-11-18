@@ -53,7 +53,7 @@ export default function AboutPage() {
         </FadeUp>
         <FadeUp delay={0.2}>
           <Link href="/signup">
-            <MotionButton className="btn-primary">{t.common.createAccount}</MotionButton>
+            <MotionButton className="btn-signup">{t.common.createAccount}</MotionButton>
           </Link>
         </FadeUp>
       </section>

@@ -74,7 +74,7 @@ export function PublicNav() {
               >
                 {t.nav.login}
               </Link>
-              <Link href="/signup" className="btn-primary !px-4 !py-2 text-xs sm:text-sm">
+              <Link href="/signup" className="btn-signup !px-4 !py-2 text-xs sm:text-sm">
                 {t.nav.signup}
               </Link>
             </>

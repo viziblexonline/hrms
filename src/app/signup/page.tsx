@@ -253,7 +253,7 @@ export default function SignupPage() {
             <MotionButton
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-signup w-full"
             >
               {loading ? t.auth.creating : t.auth.signupBtn}
             </MotionButton>

@@ -40,6 +40,9 @@ html[dir="rtl"] .card-gold::before {
   .btn-primary {
     @apply inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-sm transition hover:bg-primary-dark hover:shadow-md disabled:opacity-60;
   }
+  .btn-signup {
+    @apply inline-flex items-center justify-center rounded-full bg-blue-600 px-6 py-2.5 text-sm font-semibold tracking-wide text-white shadow-sm transition hover:bg-blue-700 hover:shadow-md disabled:opacity-60;
+  }
   .btn-secondary {
     @apply inline-flex items-center justify-center rounded-full border border-primary/25 bg-white/80 px-6 py-2.5 text-sm font-semibold tracking-wide text-primary backdrop-blur transition hover:border-primary hover:bg-primary-soft;
   }
