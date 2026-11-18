@@ -7,6 +7,8 @@ import {
 import {
   AppData,
   Assessment,
+  AttendanceRecord,
+  AttendanceStatus,
   ClassCategory,
   ClassRoom,
   ContactMessage,
@@ -82,6 +84,7 @@ function normalizeData(raw: Partial<AppData> | null): AppData {
       Array.isArray(raw.meetings) && raw.meetings.length
         ? raw.meetings
         : seed.meetings,
+    attendance: Array.isArray(raw.attendance) ? raw.attendance : seed.attendance,
   };
 }
 
@@ -814,4 +817,74 @@ export function gradeFromScore(score: number): string {
 
 export function uid(prefix: string) {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+}
+
+export function todayDateKey() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+export function getAttendanceForClassDate(
+  data: AppData,
+  classId: string,
+  date: string
+): AttendanceRecord[] {
+  return data.attendance.filter(
+    (a) => a.classId === classId && a.date === date
+  );
+}
+
+export function getStudentAttendance(
+  data: AppData,
+  studentId: string
+): AttendanceRecord[] {
+  return data.attendance
+    .filter((a) => a.studentId === studentId)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export function getAttendanceStats(
+  records: AttendanceRecord[]
+): Record<AttendanceStatus | "total", number> {
+  const stats: Record<AttendanceStatus | "total", number> = {
+    present: 0,
+    absent: 0,
+    late: 0,
+    excused: 0,
+    total: records.length,
+  };
+  for (const r of records) stats[r.status] += 1;
+  return stats;
+}
+
+/** Upsert daily marks for a class (one row per student/day) */
+export function saveClassAttendance(input: {
+  classId: string;
+  teacherId: string;
+  date: string;
+  marks: { studentId: string; status: AttendanceStatus; notes?: string }[];
+}): { ok: true; count: number } | { ok: false; error: string } {
+  const data = getData();
+  const room = data.classes.find((c) => c.id === input.classId && c.active);
+  if (!room) return { ok: false, error: "Class not found." };
+  if (!input.date) return { ok: false, error: "Date is required." };
+  if (!input.marks.length) return { ok: false, error: "No students to mark." };
+
+  const kept = data.attendance.filter(
+    (a) => !(a.classId === input.classId && a.date === input.date)
+  );
+  const now = new Date().toISOString();
+  const next: AttendanceRecord[] = input.marks.map((m, i) => ({
+    id: `att-${input.classId}-${input.date}-${m.studentId}-${i}`,
+    classId: input.classId,
+    studentId: m.studentId,
+    teacherId: input.teacherId,
+    date: input.date,
+    status: m.status,
+    notes: m.notes?.trim() || undefined,
+    markedAt: now,
+  }));
+
+  data.attendance = [...kept, ...next];
+  saveData(data);
+  return { ok: true, count: next.length };
 }

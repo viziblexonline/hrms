@@ -137,6 +137,7 @@ export function RoleConnectionHub({ data, user }: HubProps) {
             linked
               ? [
                   { href: "/dashboard/revision", label: "My tasks" },
+                  { href: "/dashboard/attendance", label: "My attendance" },
                   { href: "/dashboard/meetings", label: "Meet teacher" },
                 ]
               : [{ href: "/dashboard/meetings", label: "Browse meetings" }]
@@ -157,7 +158,7 @@ export function RoleConnectionHub({ data, user }: HubProps) {
       <section className="card-gold mb-6">
         <Header
           title="Teacher connection hub"
-          text="Admin aapko class assign karta hai → aap students link karte ho → tasks & meetings se circle warm rehta hai."
+          text="Admin aapko class deta hai → aap students enroll karte ho → roz attendance + tasks se circle tight rehta hai."
         />
         <div className="mt-4 flex flex-wrap items-stretch justify-center gap-2">
           <Node
@@ -175,6 +176,7 @@ export function RoleConnectionHub({ data, user }: HubProps) {
             hint={`${classes.length} class · ${students.length} students`}
             active
             icon={UserRound}
+            href="/dashboard/attendance"
           />
           <Connector ok={students.length > 0} />
           <Node
@@ -199,6 +201,7 @@ export function RoleConnectionHub({ data, user }: HubProps) {
           linked={linked}
           extra={[
             { href: "/dashboard/students", label: "Link students" },
+            { href: "/dashboard/attendance", label: "Mark attendance" },
             { href: "/dashboard/revision", label: "Assign tasks" },
             { href: "/dashboard/meetings", label: "Schedule meeting" },
           ]}
@@ -262,6 +265,8 @@ export function RoleConnectionHub({ data, user }: HubProps) {
         extra={[
           { href: "/dashboard/classes", label: "Assign class teachers" },
           { href: "/dashboard/students", label: "Link / transfer students" },
+          { href: "/dashboard/attendance", label: "Review attendance" },
+          { href: "/dashboard/users", label: "Create teacher / student" },
           { href: "/dashboard/meetings", label: "Oversee meetings" },
         ]}
       />

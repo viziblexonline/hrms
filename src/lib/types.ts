@@ -88,6 +88,20 @@ export interface ContactMessage {
   createdAt: string;
 }
 
+export type AttendanceStatus = "present" | "absent" | "late" | "excused";
+
+/** One student mark for one class on one calendar day */
+export interface AttendanceRecord {
+  id: string;
+  classId: string;
+  studentId: string;
+  teacherId: string;
+  date: string; // YYYY-MM-DD
+  status: AttendanceStatus;
+  notes?: string;
+  markedAt: string;
+}
+
 export type MeetingProvider = "jitsi" | "zoom" | "google_meet";
 export type MeetingStatus = "scheduled" | "live" | "ended";
 
@@ -134,6 +148,7 @@ export interface AppData {
   assessments: Assessment[];
   messages: ContactMessage[];
   meetings: OnlineMeeting[];
+  attendance: AttendanceRecord[];
 }
 
 export interface SessionUser {

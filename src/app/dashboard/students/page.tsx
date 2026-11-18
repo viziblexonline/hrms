@@ -179,6 +179,17 @@ export default function StudentsPage() {
         subtitle="Link students ↔ teachers through classes. Transfers keep teacher sync."
       />
 
+      {(user.role === "teacher" || user.role === "admin") && (
+        <div className="mb-4">
+          <a
+            href="/dashboard/attendance"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Mark today&apos;s class attendance →
+          </a>
+        </div>
+      )}
+
       {(message || error) && (
         <div
           className={`mb-4 rounded-xl px-3 py-2 text-sm ${

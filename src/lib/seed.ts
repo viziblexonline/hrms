@@ -433,6 +433,36 @@ export const SEED_DATA: AppData = {
       createdAt: "2026-10-16T09:00:00.000Z",
     },
   ],
+  attendance: [
+    {
+      id: "att-1",
+      classId: "c-hifz-a",
+      studentId: "u-student-1",
+      teacherId: "u-teacher-1",
+      date: new Date().toISOString().slice(0, 10),
+      status: "present",
+      markedAt: new Date().toISOString(),
+    },
+    {
+      id: "att-2",
+      classId: "c-hifz-a",
+      studentId: "u-student-2",
+      teacherId: "u-teacher-1",
+      date: new Date().toISOString().slice(0, 10),
+      status: "late",
+      notes: "Joined after Maghrib revision",
+      markedAt: new Date().toISOString(),
+    },
+    {
+      id: "att-3",
+      classId: "c-hifz-b",
+      studentId: "u-student-3",
+      teacherId: "u-teacher-2",
+      date: new Date().toISOString().slice(0, 10),
+      status: "present",
+      markedAt: new Date().toISOString(),
+    },
+  ],
 };
 
 export const SURAH_LIST = [

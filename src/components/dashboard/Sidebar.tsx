@@ -17,6 +17,7 @@ import {
   UserCog,
   FileText,
   Headphones,
+  UserCheck,
   Video,
 } from "lucide-react";
 import { Logo } from "../Logo";
@@ -32,6 +33,7 @@ type NavKey =
   | "progress"
   | "revision"
   | "assessments"
+  | "attendance"
   | "schedule"
   | "meetings"
   | "listen"
@@ -54,6 +56,7 @@ const navItems: NavItem[] = [
   { href: "/dashboard/progress", key: "progress", icon: BarChart3, roles: ["student"] },
   { href: "/dashboard/revision", key: "revision", icon: BookMarked, roles: ["student", "teacher", "admin"] },
   { href: "/dashboard/assessments", key: "assessments", icon: ClipboardCheck, roles: ["student", "teacher"] },
+  { href: "/dashboard/attendance", key: "attendance", icon: UserCheck, roles: ["student", "teacher", "admin"] },
   { href: "/dashboard/schedule", key: "schedule", icon: CalendarDays, roles: ["student", "teacher"] },
   { href: "/dashboard/meetings", key: "meetings", icon: Video, roles: ["student", "teacher", "admin"] },
   { href: "/dashboard/listen", key: "listen", icon: Headphones, roles: ["student", "teacher", "admin"] },
