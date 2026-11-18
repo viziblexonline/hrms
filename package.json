@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "ship": "node .cursor/hooks/ship-core.mjs",
+    "ship:watch": "node scripts/watch-ship.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

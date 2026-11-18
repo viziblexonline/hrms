@@ -6,6 +6,12 @@
         "command": "node .cursor/hooks/auto-ship.mjs",
         "timeout": 300
       }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "node .cursor/hooks/queue-ship-on-edit.mjs",
+        "timeout": 5
+      }
     ]
   }
 }
