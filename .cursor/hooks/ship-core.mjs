@@ -1,23 +1,16 @@
 /**
- * Fast ship: commit → push (sync), then Vercel prod deploy in background.
- * Waiting on the full remote build was making Ctrl+S feel slow (~60s+).
+ * Fast ship: commit → push (sync), then Vercel prod via scripts/run-deploy.mjs
+ * in a detached process (reliable on Windows).
  */
 import { spawn, spawnSync } from "child_process";
-import {
-  existsSync,
-  mkdirSync,
-  openSync,
-  writeSync,
-  writeFileSync,
-  readFileSync,
-} from "fs";
+import { existsSync, mkdirSync, writeFileSync, readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const SHIP_DIR = resolve(ROOT, ".ship");
-const DEPLOY_LOG = resolve(SHIP_DIR, "deploy.log");
 const DEPLOY_META = resolve(SHIP_DIR, "deploy-meta.json");
+const RUN_DEPLOY = resolve(ROOT, "scripts/run-deploy.mjs");
 const LIVE_URL = "https://hrms-two-kappa.vercel.app";
 
 function run(cmd, args, opts = {}) {
@@ -69,41 +62,21 @@ function startDeployBackground() {
     return { started: false, queued: true };
   }
 
-  const isWin = process.platform === "win32";
-  const outFd = openSync(DEPLOY_LOG, "a");
-  const stamp = new Date().toISOString();
-  writeSync(outFd, `\n---- deploy ${stamp} ----\n`);
-
-  // archive=tgz = faster upload; detached = don't block Ctrl+S / watcher
-  const child = spawn(
-    isWin ? "npx.cmd" : "npx",
-    ["vercel", "deploy", "--prod", "--yes", "--archive=tgz"],
-    {
-      cwd: ROOT,
-      env: process.env,
-      detached: true,
-      stdio: ["ignore", outFd, outFd],
-      shell: isWin,
-      windowsHide: true,
-    }
-  );
-
+  // Fresh node process — survives after ship returns; writes its own meta/log
+  const child = spawn(process.execPath, [RUN_DEPLOY], {
+    cwd: ROOT,
+    env: process.env,
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
+  });
   child.unref();
-  writeMeta({ pid: child.pid, running: true, queued: false, startedAt: stamp });
 
-  child.on("exit", (code) => {
-    const next = readMeta();
-    writeMeta({
-      pid: null,
-      running: false,
-      queued: false,
-      lastExit: code,
-      finishedAt: new Date().toISOString(),
-    });
-    // If more saves happened while deploying, fire one more deploy
-    if (next.queued) {
-      startDeployBackground();
-    }
+  writeMeta({
+    pid: child.pid,
+    running: true,
+    queued: false,
+    startedAt: new Date().toISOString(),
   });
 
   return { started: true, queued: false, pid: child.pid };
@@ -171,13 +144,13 @@ export function ship(label = "Cursor") {
   if (deploy.queued) {
     return {
       ok: true,
-      message: `Pushed ${branchName}. Deploy already running — next deploy queued. Live soon: ${LIVE_URL}`,
+      message: `Pushed ${branchName}. Deploy running — next one queued. Live soon: ${LIVE_URL}`,
     };
   }
 
   return {
     ok: true,
-    message: `Pushed ${branchName}. Deploy started in background → ${LIVE_URL} (usually ~40–60s)`,
+    message: `Pushed ${branchName}. Deploy started → ${LIVE_URL} (wait ~40–60s, then Ctrl+F5)`,
   };
 }
 
