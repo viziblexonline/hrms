@@ -1,36 +1,25 @@
-# Auto commit → push → deploy
+# Auto commit → push → deploy (fast)
 
 ## Manual edits (Ctrl+S)
 
-1. Ek terminal mein rakhna:
+1. Terminal open rakho:
 
 ```powershell
 cd E:\Users\Administrator\Desktop\hrms
 npm run ship:watch
 ```
 
-2. Code edit karo → **Ctrl+S**
-3. **12 seconds** baad (last save ke baad) automatically:
-   - `git commit`
-   - `git push`
-   - `vercel --prod`
+2. Code edit → **Ctrl+S**
+3. **~3 seconds** baad:
+   - `git commit` + `git push` **turant**
+   - Vercel deploy **background** mein (wait nahi)
+4. Live site usually **~40–60s** baad update (Vercel build)  
+   https://hrms-two-kappa.vercel.app
 
-Live: https://hrms-two-kappa.vercel.app
+`.env.local` commit nahi hota. Deploy log: `.ship/deploy.log`
 
-`.env.local` commit nahi hota.
-
-## Cursor agent edits
-
-Agent turn khatam hone pe `.cursor/hooks` se bhi auto-ship chalta hai.
-
-## One-shot ship (bina watch)
+## One-shot
 
 ```powershell
-npm run ship:watch
-```
-
-Ya turant ek baar:
-
-```powershell
-node -e "import('./.cursor/hooks/ship-core.mjs').then(m => console.log(m.ship('manual')))"
+npm run ship
 ```

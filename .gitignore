@@ -32,6 +32,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# auto-ship deploy logs
+.ship
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

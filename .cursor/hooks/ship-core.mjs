@@ -1,19 +1,112 @@
 /**
- * Shared commit → push → Vercel prod deploy.
- * Returns { ok, message }
+ * Fast ship: commit → push (sync), then Vercel prod deploy in background.
+ * Waiting on the full remote build was making Ctrl+S feel slow (~60s+).
  */
-import { spawnSync } from "child_process";
+import { spawn, spawnSync } from "child_process";
+import {
+  existsSync,
+  mkdirSync,
+  openSync,
+  writeSync,
+  writeFileSync,
+  readFileSync,
+} from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
+const SHIP_DIR = resolve(ROOT, ".ship");
+const DEPLOY_LOG = resolve(SHIP_DIR, "deploy.log");
+const DEPLOY_META = resolve(SHIP_DIR, "deploy-meta.json");
+const LIVE_URL = "https://hrms-two-kappa.vercel.app";
 
 function run(cmd, args, opts = {}) {
   return spawnSync(cmd, args, {
     encoding: "utf8",
     shell: false,
+    cwd: ROOT,
     ...opts,
   });
 }
 
 function git(args) {
   return run("git", args);
+}
+
+function ensureShipDir() {
+  if (!existsSync(SHIP_DIR)) mkdirSync(SHIP_DIR, { recursive: true });
+}
+
+function readMeta() {
+  try {
+    return JSON.parse(readFileSync(DEPLOY_META, "utf8"));
+  } catch {
+    return { pid: null, running: false, queued: false };
+  }
+}
+
+function writeMeta(meta) {
+  ensureShipDir();
+  writeFileSync(DEPLOY_META, JSON.stringify(meta, null, 2));
+}
+
+function isPidAlive(pid) {
+  if (!pid) return false;
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function startDeployBackground() {
+  ensureShipDir();
+  const meta = readMeta();
+
+  if (meta.running && isPidAlive(meta.pid)) {
+    writeMeta({ ...meta, queued: true });
+    return { started: false, queued: true };
+  }
+
+  const isWin = process.platform === "win32";
+  const outFd = openSync(DEPLOY_LOG, "a");
+  const stamp = new Date().toISOString();
+  writeSync(outFd, `\n---- deploy ${stamp} ----\n`);
+
+  // archive=tgz = faster upload; detached = don't block Ctrl+S / watcher
+  const child = spawn(
+    isWin ? "npx.cmd" : "npx",
+    ["vercel", "deploy", "--prod", "--yes", "--archive=tgz"],
+    {
+      cwd: ROOT,
+      env: process.env,
+      detached: true,
+      stdio: ["ignore", outFd, outFd],
+      shell: isWin,
+      windowsHide: true,
+    }
+  );
+
+  child.unref();
+  writeMeta({ pid: child.pid, running: true, queued: false, startedAt: stamp });
+
+  child.on("exit", (code) => {
+    const next = readMeta();
+    writeMeta({
+      pid: null,
+      running: false,
+      queued: false,
+      lastExit: code,
+      finishedAt: new Date().toISOString(),
+    });
+    // If more saves happened while deploying, fire one more deploy
+    if (next.queued) {
+      startDeployBackground();
+    }
+  });
+
+  return { started: true, queued: false, pid: child.pid };
 }
 
 export function ship(label = "Cursor") {
@@ -74,39 +167,20 @@ export function ship(label = "Cursor") {
     return { ok: false, message: `push failed: ${err.slice(0, 240)}` };
   }
 
-  // Windows: shell:true so npx.cmd resolves; capture stderr from PowerShell noise
-  const isWin = process.platform === "win32";
-  const deploy = run(
-    isWin ? "npx.cmd" : "npx",
-    ["vercel", "--prod", "--yes"],
-    {
-      env: process.env,
-      timeout: 280000,
-      shell: isWin,
-    }
-  );
-
-  const deployOut = `${deploy.stdout || ""}${deploy.stderr || ""}`.trim();
-  const deployOk =
-    deploy.status === 0 ||
-    /Production:\s+https:\/\/hrms/i.test(deployOut) ||
-    /Aliased\s+https:\/\/hrms/i.test(deployOut) ||
-    /"status"\s*:\s*"ok"/i.test(deployOut);
-
-  if (!deployOk) {
+  const deploy = startDeployBackground();
+  if (deploy.queued) {
     return {
-      ok: false,
-      message: `Pushed ${branchName}, but Vercel deploy failed: ${deployOut.slice(0, 280) || `exit ${deploy.status}`}`,
+      ok: true,
+      message: `Pushed ${branchName}. Deploy already running — next deploy queued. Live soon: ${LIVE_URL}`,
     };
   }
 
   return {
     ok: true,
-    message: `Shipped ${branchName}: commit + push + deploy → https://hrms-two-kappa.vercel.app`,
+    message: `Pushed ${branchName}. Deploy started in background → ${LIVE_URL} (usually ~40–60s)`,
   };
 }
 
-// Allow: node .cursor/hooks/ship-core.mjs  OR  npm run ship
 const isDirect =
   process.argv[1] &&
   process.argv[1].replace(/\\/g, "/").endsWith("/.cursor/hooks/ship-core.mjs");
