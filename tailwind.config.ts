@@ -51,7 +51,7 @@ const config: Config = {
         "mesh-green":
           "radial-gradient(ellipse at 20% 10%, rgba(46,125,50,0.18), transparent 45%), radial-gradient(ellipse at 80% 0%, rgba(27,94,32,0.12), transparent 40%), radial-gradient(ellipse at 50% 100%, rgba(200,230,201,0.45), transparent 50%)",
         "arch-fade":
-          "linear-gradient(160deg, #0F3D14 0%, #1B5E20 48%, #245c2b 100%)",
+          "linear-gradient(160deg,rgb(33, 173, 49) 0%,rgb(19, 61, 22) 48%, #245c2b 100%)",
         "gold-fade":
           "linear-gradient(135deg, #FFF8E7 0%, #F7E9B8 45%, #F0D78C 100%)",
       },
