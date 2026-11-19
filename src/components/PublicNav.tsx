@@ -11,27 +11,12 @@ import { motion } from "framer-motion";
 import { CalendarDays, LogIn, Menu, X } from "lucide-react";
 import { useState } from "react";
 
-const DATE_LOCALE: Record<string, string> = {
-  en: "en-US",
-  ur: "ur-PK",
-  ar: "ar",
-};
-
-function formatShortDate(locale: string) {
-  return new Date().toLocaleDateString(DATE_LOCALE[locale] || locale, {
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export function PublicNav() {
   const pathname = usePathname();
   const { user } = useAuth();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const today = new Date();
-  const todayLabel = formatShortDate(locale);
-  const todayIso = today.toISOString().slice(0, 10);
+  const todayLabel = new Date().toLocaleDateString();
 
   const links = [
     { href: "/", label: t.nav.home, key: "home" },
@@ -77,14 +62,14 @@ export function PublicNav() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
-          <time
-            dateTime={todayIso}
+          <button
+            type="button"
             className="hidden items-center gap-1.5 rounded-full border border-primary/15 bg-white/90 px-2.5 py-2 text-sm font-medium text-ink-soft transition hover:bg-primary-soft hover:text-primary sm:inline-flex"
             aria-label={todayLabel}
           >
             <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
             <span>{todayLabel}</span>
-          </time>
+          </button>
           <LanguageSwitcher variant="compact" className="hidden sm:block" />
           {user ? (
             <Link href="/dashboard" className="btn-primary !px-4 !py-2 text-xs sm:text-sm">
