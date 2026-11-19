@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useI18n } from "@/lib/i18n";
 import { motion } from "framer-motion";
 import { CalendarDays, LogIn, Menu, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 const DATE_LOCALE: Record<string, string> = {
   en: "en-US",
@@ -29,8 +29,9 @@ export function PublicNav() {
   const { user } = useAuth();
   const { t, locale } = useI18n();
   const [open, setOpen] = useState(false);
-  const todayLabel = useMemo(() => formatShortDate(locale), [locale]);
-  const todayIso = useMemo(() => new Date().toISOString().slice(0, 10), []);
+  const today = new Date();
+  const todayLabel = formatShortDate(locale);
+  const todayIso = today.toISOString().slice(0, 10);
 
   const links = [
     { href: "/", label: t.nav.home, key: "home" },
