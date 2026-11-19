@@ -70,9 +70,10 @@ export function PublicNav() {
             <>
               <Link
                 href="/login"
-                className="hidden text-sm font-semibold text-primary md:inline"
+                className="hidden items-center gap-1.5 rounded-full border border-primary/15 bg-white/90 px-2.5 py-2 text-sm font-medium text-ink-soft transition hover:bg-primary-soft hover:text-primary sm:inline-flex"
               >
-                {t.nav.login}
+                <LogIn className="h-4 w-4 shrink-0 text-primary" />
+                <span>{t.nav.login}</span>
               </Link>
               <Link href="/signup" className="btn-signup !px-4 !py-2 text-xs sm:text-sm">
                 {t.nav.signup}
