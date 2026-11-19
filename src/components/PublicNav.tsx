@@ -16,7 +16,10 @@ export function PublicNav() {
   const { user } = useAuth();
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
-  const todayLabel = new Date().toLocaleDateString();
+  const todayLabel = new Date().toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 
   const links = [
     { href: "/", label: t.nav.home, key: "home" },
