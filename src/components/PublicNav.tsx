@@ -116,14 +116,14 @@ export function PublicNav() {
             </Link>
           ))}
           <div className="mt-2 space-y-2 border-t border-primary/10 px-2 pt-3">
-            <time
-              dateTime={todayIso}
+            <button
+              type="button"
               className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-white/90 px-2.5 py-2 text-sm font-medium text-ink-soft"
               aria-label={todayLabel}
             >
               <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
               <span>{todayLabel}</span>
-            </time>
+            </button>
             <LanguageSwitcher variant="panel" />
             {!user && (
               <div className="flex gap-2 pt-1">
