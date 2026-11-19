@@ -76,6 +76,14 @@ export function PublicNav() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <time
+            dateTime={todayIso}
+            className="hidden items-center gap-1.5 rounded-full border border-primary/15 bg-white/90 px-2.5 py-2 text-sm font-medium text-ink-soft transition hover:bg-primary-soft hover:text-primary sm:inline-flex"
+            aria-label={todayLabel}
+          >
+            <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
+            <span>{todayLabel}</span>
+          </time>
           <LanguageSwitcher variant="compact" className="hidden sm:block" />
           {user ? (
             <Link href="/dashboard" className="btn-primary !px-4 !py-2 text-xs sm:text-sm">
@@ -122,6 +130,14 @@ export function PublicNav() {
             </Link>
           ))}
           <div className="mt-2 space-y-2 border-t border-primary/10 px-2 pt-3">
+            <time
+              dateTime={todayIso}
+              className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-white/90 px-2.5 py-2 text-sm font-medium text-ink-soft"
+              aria-label={todayLabel}
+            >
+              <CalendarDays className="h-4 w-4 shrink-0 text-primary" />
+              <span>{todayLabel}</span>
+            </time>
             <LanguageSwitcher variant="panel" />
             {!user && (
               <div className="flex gap-2 pt-1">
