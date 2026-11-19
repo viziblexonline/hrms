@@ -41,7 +41,7 @@ const config: Config = {
       boxShadow: {
         card: "0 1px 0 rgba(27, 94, 32, 0.06), 0 18px 40px rgba(15, 61, 20, 0.07)",
         lift: "0 24px 50px rgba(15, 61, 20, 0.12)",
-        nav: "0 10px 30px rgba(15, 61, 20, 0.10)",
+        nav: "0 10px 30px rgba(61, 15, 15, 0.1)",
         gold: "0 10px 28px rgba(201, 162, 39, 0.22)",
       },
       borderRadius: {
