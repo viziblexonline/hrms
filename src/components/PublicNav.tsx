@@ -106,8 +106,27 @@ export function PublicNav() {
               {link.label}
             </Link>
           ))}
-          <div className="mt-2 border-t border-primary/10 px-2 pt-3">
+          <div className="mt-2 space-y-2 border-t border-primary/10 px-2 pt-3">
             <LanguageSwitcher variant="panel" />
+            {!user && (
+              <div className="flex gap-2 pt-1">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-primary/15 bg-white px-3 py-2.5 text-sm font-medium text-ink-soft"
+                >
+                  <LogIn className="h-4 w-4 text-primary" />
+                  {t.nav.login}
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  className="btn-signup flex-1 !px-3 !py-2.5 text-center text-sm"
+                >
+                  {t.nav.signup}
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
